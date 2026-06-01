@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – ATM System{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+
+<div class="dashboard-grid">
+    <!-- STATS -->
+    <div class="stats-row stats-row-6">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-body"><div class="stat-label">Total Users</div><div class="stat-value">{{ total_users }}</div></div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+            <div class="stat-body"><div class="stat-label">Active Users</div><div class="stat-value">{{ active_users }}</div></div>
+        </div>
+        <div class="stat-card stat-red">
+            <div class="stat-icon"><i class="fas fa-user-lock"></i></div>
+            <div class="stat-body"><div class="stat-label">Frozen Users</div><div class="stat-value">{{ frozen_users }}</div></div>
+        </div>
+        <div class="stat-card stat-purple">
+            <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+            <div class="stat-body"><div class="stat-label">Total Transactions</div><div class="stat-value">{{ total_txns }}</div></div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+            <div class="stat-body"><div class="stat-label">Total Deposits</div><div class="stat-value">₹{{ "{:,.0f}".format(total_deposits) }}</div></div>
+        </div>
+        <div class="stat-card stat-pink">
+            <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+            <div class="stat-body"><div class="stat-label">Total Withdrawals</div><div class="stat-value">₹{{ "{:,.0f}".format(total_withdrawals) }}</div></div>
+        </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-card" style="grid-column: 1 / -1">
+        <div class="card-header-custom">
+            <span><i class="fas fa-chart-bar"></i> Monthly Overview (Last 6 Months)</span>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- RECENT USERS + RECENT TRANSACTIONS -->
+    <div class="dashboard-bottom">
+        <div class="recent-card">
+            <div class="card-header-custom">
+                <span><i class="fas fa-users"></i> Recent Registrations</span>
+                <a href="{{ url_for('admin_users') }}" class="view-all">Manage Users</a>
+            </div>
+            {% if recent_users %}
+            <div class="txn-list">
+                {% for u in recent_users %}
+                <div class="txn-item">
+                    <div class="user-avatar-sm">{{ u.full_name[0].upper() }}</div>
+                    <div class="txn-details">
+                        <div class="txn-type">{{ u.full_name }}</div>
+                        <div class="txn-date mono">{{ u.account_number }} · {{ u.email }}</div>
+                    </div>
+                    <span class="status-pill status-{{ u.status }}">{{ u.status | capitalize }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state"><i class="fas fa-users fa-2x mb-2"></i><p>No users yet</p></div>
+            {% endif %}
+        </div>
+
+        <div class="recent-card">
+            <div class="card-header-custom">
+                <span><i class="fas fa-clock-rotate-left"></i> Recent Transactions</span>
+            </div>
+            {% if recent_txns %}
+            <div class="txn-list">
+                {% for txn in recent_txns %}
+                <div class="txn-item">
+                    <div class="txn-icon txn-{{ txn.transaction_type | lower | replace(' ', '-') }}">
+                        {% if 'Deposit' in txn.transaction_type %}<i class="fas fa-arrow-down"></i>
+                        {% elif 'Withdraw' in txn.transaction_type %}<i class="fas fa-arrow-up"></i>
+                        {% else %}<i class="fas fa-right-left"></i>{% endif %}
+                    </div>
+                    <div class="txn-details">
+                        <div class="txn-type">{{ txn.account_number }} · {{ txn.transaction_type }}</div>
+                        <div class="txn-date">{{ txn.timestamp.strftime('%d %b, %I:%M %p') if txn.timestamp else '' }}</div>
+                    </div>
+                    <div class="txn-amount txn-amount-{{ 'credit' if 'Deposit' in txn.transaction_type or 'Received' in txn.transaction_type else 'debit' }}">
+                        ₹{{ "{:,.0f}".format(txn.amount) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state"><i class="fas fa-inbox fa-2x mb-2"></i><p>No transactions yet</p></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_scripts %}
+<script>
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ monthly_labels | tojson }},
+        datasets: [
+            {
+                label: 'Deposits',
+                data: {{ monthly_deposits | tojson }},
+                backgroundColor: 'rgba(67,233,123,0.7)',
+                borderColor: '#43e97b',
+                borderWidth: 2,
+                borderRadius: 6
+            },
+            {
+                label: 'Withdrawals',
+                data: {{ monthly_withdrawals | tojson }},
+                backgroundColor: 'rgba(245,87,108,0.7)',
+                borderColor: '#f5576c',
+                borderWidth: 2,
+                borderRadius: 6
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#c5cae9', font: { family: 'Outfit' } } } },
+        scales: {
+            x: { ticks: { color: '#8892b0' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#8892b0', callback: v => '₹'+v }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Transaction History – ATM System{% endblock %}
+{% block page_title %}Transaction History{% endblock %}
+{% block content %}
+
+<div class="history-page">
+    <!-- FILTERS -->
+    <div class="history-filters">
+        <form method="GET" action="{{ url_for('history') }}" class="filter-form">
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" class="filter-input" placeholder="Search by TXN ID or type..." value="{{ search }}"/>
+            </div>
+            <select name="type" class="filter-select">
+                <option value="">All Types</option>
+                <option value="Deposit" {% if txn_type=='Deposit' %}selected{% endif %}>Deposit</option>
+                <option value="Withdraw" {% if txn_type=='Withdraw' %}selected{% endif %}>Withdraw</option>
+                <option value="Transfer Sent" {% if txn_type=='Transfer Sent' %}selected{% endif %}>Transfer Sent</option>
+                <option value="Transfer Received" {% if txn_type=='Transfer Received' %}selected{% endif %}>Transfer Received</option>
+            </select>
+            <button type="submit" class="filter-btn"><i class="fas fa-filter"></i> Filter</button>
+            <a href="{{ url_for('history') }}" class="filter-btn filter-clear"><i class="fas fa-times"></i> Clear</a>
+        </form>
+        <a href="{{ url_for('download_history_pdf') }}" class="btn-download-pdf">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </a>
+    </div>
+
+    <!-- TABLE -->
+    <div class="history-table-card">
+        <div class="card-header-custom">
+            <span><i class="fas fa-list-ul"></i> Transactions ({{ total }} total)</span>
+        </div>
+        {% if transactions %}
+        <div class="table-responsive">
+            <table class="txn-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Transaction ID</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Reference</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                    <tr class="txn-row">
+                        <td class="txn-num">{{ loop.index + (page-1)*10 }}</td>
+                        <td><span class="txn-id-pill mono">{{ txn.transaction_id }}</span></td>
+                        <td>
+                            <span class="txn-type-badge type-{{ txn.transaction_type | lower | replace(' ', '-') }}">
+                                {% if 'Deposit' in txn.transaction_type %}<i class="fas fa-arrow-down"></i>
+                                {% elif 'Withdraw' in txn.transaction_type %}<i class="fas fa-arrow-up"></i>
+                                {% else %}<i class="fas fa-right-left"></i>{% endif %}
+                                {{ txn.transaction_type }}
+                            </span>
+                        </td>
+                        <td class="txn-amount-cell {{ 'amount-credit' if ('Deposit' in txn.transaction_type or 'Received' in txn.transaction_type) else 'amount-debit' }}">
+                            {{ '+' if ('Deposit' in txn.transaction_type or 'Received' in txn.transaction_type) else '-' }}₹{{ "{:,.2f}".format(txn.amount) }}
+                        </td>
+                        <td class="mono" style="font-size:0.8rem;color:#8892b0">
+                            {{ txn.receiver_account if txn.receiver_account else '—' }}
+                        </td>
+                        <td style="color:#8892b0;font-size:0.85rem">
+                            {{ txn.timestamp.strftime('%d %b %Y, %I:%M %p') if txn.timestamp else 'N/A' }}
+                        </td>
+                        <td><span class="status-pill status-active">{{ txn.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINATION -->
+        {% if total_pages > 1 %}
+        <div class="pagination-wrap">
+            {% if page > 1 %}
+            <a href="{{ url_for('history', page=page-1, search=search, type=txn_type) }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+            {% endif %}
+            {% for p in range(1, total_pages+1) %}
+                {% if p == page %}
+                <span class="page-btn page-active">{{ p }}</span>
+                {% elif p <= 3 or p >= total_pages-2 or (p >= page-1 and p <= page+1) %}
+                <a href="{{ url_for('history', page=p, search=search, type=txn_type) }}" class="page-btn">{{ p }}</a>
+                {% elif p == 4 and page > 5 %}
+                <span class="page-ellipsis">…</span>
+                {% elif p == total_pages-3 and page < total_pages-4 %}
+                <span class="page-ellipsis">…</span>
+                {% endif %}
+            {% endfor %}
+            {% if page < total_pages %}
+            <a href="{{ url_for('history', page=page+1, search=search, type=txn_type) }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <h4>No transactions found</h4>
+            <p>{% if search or txn_type %}Try adjusting your filters.{% else %}Start by making a deposit!{% endif %}</p>
+            {% if not search and not txn_type %}
+            <a href="{{ url_for('deposit') }}" class="btn-txn-submit deposit-btn" style="width:auto;padding:0.6rem 2rem;display:inline-flex">Make First Deposit</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

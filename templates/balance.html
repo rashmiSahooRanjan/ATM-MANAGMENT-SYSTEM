@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Balance – ATM System{% endblock %}
+{% block page_title %}Balance Inquiry{% endblock %}
+{% block content %}
+
+<div class="balance-page">
+    <div class="balance-hero-card">
+        <div class="balance-card-bg"></div>
+        <div class="balance-card-content">
+            <div class="balance-card-chip"><i class="fas fa-microchip"></i></div>
+            <div class="balance-card-bank"><i class="fas fa-university"></i> ATMPro Banking</div>
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">₹{{ "{:,.2f}".format(user.balance) }}</div>
+            <div class="balance-account-row">
+                <div>
+                    <div class="balance-field-label">Account Number</div>
+                    <div class="balance-field-val mono">{{ user.account_number }}</div>
+                </div>
+                <div>
+                    <div class="balance-field-label">Status</div>
+                    <div class="balance-field-val">
+                        <span class="status-pill status-{{ user.status }}">{{ user.status | capitalize }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="balance-holder">
+                <div class="balance-field-label">Card Holder</div>
+                <div class="balance-field-val">{{ user.full_name | upper }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="balance-details-grid">
+        <div class="balance-detail-card">
+            <div class="bd-icon" style="background:linear-gradient(135deg,#43e97b,#38f9d7)"><i class="fas fa-user"></i></div>
+            <div class="bd-label">Account Holder</div>
+            <div class="bd-value">{{ user.full_name }}</div>
+        </div>
+        <div class="balance-detail-card">
+            <div class="bd-icon" style="background:linear-gradient(135deg,#7c83fd,#a18cd1)"><i class="fas fa-envelope"></i></div>
+            <div class="bd-label">Email</div>
+            <div class="bd-value">{{ user.email }}</div>
+        </div>
+        <div class="balance-detail-card">
+            <div class="bd-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-phone"></i></div>
+            <div class="bd-label">Mobile</div>
+            <div class="bd-value">{{ user.mobile }}</div>
+        </div>
+        <div class="balance-detail-card">
+            <div class="bd-icon" style="background:linear-gradient(135deg,#fa709a,#fee140)"><i class="fas fa-calendar"></i></div>
+            <div class="bd-label">Member Since</div>
+            <div class="bd-value">{{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}</div>
+        </div>
+    </div>
+
+    <div class="balance-actions">
+        <a href="{{ url_for('deposit') }}" class="btn-bal-action deposit-btn">
+            <i class="fas fa-arrow-down-to-bracket"></i> Deposit
+        </a>
+        <a href="{{ url_for('withdraw') }}" class="btn-bal-action withdraw-btn">
+            <i class="fas fa-arrow-up-from-bracket"></i> Withdraw
+        </a>
+        <a href="{{ url_for('transfer') }}" class="btn-bal-action transfer-btn">
+            <i class="fas fa-right-left"></i> Transfer
+        </a>
+        <a href="{{ url_for('history') }}" class="btn-bal-action history-btn">
+            <i class="fas fa-clock-rotate-left"></i> History
+        </a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Profile – ATM System{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block content %}
+
+<div class="profile-page">
+    <!-- PROFILE HEADER -->
+    <div class="profile-header-card">
+        <div class="profile-avatar-big">{{ user.full_name[0].upper() }}</div>
+        <div class="profile-header-info">
+            <h2>{{ user.full_name }}</h2>
+            <div class="mono" style="color:#7c83fd">{{ user.account_number }}</div>
+            <div style="margin-top:0.5rem">
+                <span class="status-pill status-{{ user.status }}">{{ user.status | capitalize }}</span>
+                <span style="color:#8892b0;font-size:0.85rem;margin-left:1rem">
+                    <i class="fas fa-calendar"></i> Member since {{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}
+                </span>
+            </div>
+        </div>
+        <div class="profile-balance-badge">
+            <div style="font-size:0.8rem;color:#8892b0">Balance</div>
+            <div style="font-size:1.8rem;font-weight:700;color:#43e97b">₹{{ "{:,.2f}".format(user.balance) }}</div>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <!-- EDIT PROFILE -->
+        <div class="profile-card">
+            <div class="profile-card-header">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </div>
+            <form method="POST" action="{{ url_for('profile') }}" novalidate>
+                <input type="hidden" name="action" value="update_profile"/>
+                <div class="form-group-custom">
+                    <label>Full Name</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="full_name" class="input-custom" value="{{ user.full_name }}" required/>
+                    </div>
+                </div>
+                <div class="form-group-custom">
+                    <label>Email Address</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="input-custom" value="{{ user.email }}" readonly style="opacity:0.6;cursor:not-allowed"/>
+                    </div>
+                    <div class="field-hint">Email cannot be changed</div>
+                </div>
+                <div class="form-group-custom">
+                    <label>Mobile Number</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" name="mobile" class="input-custom" value="{{ user.mobile }}" maxlength="10" required/>
+                    </div>
+                </div>
+                <button type="submit" class="btn-txn-submit deposit-btn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+
+        <!-- CHANGE PASSWORD -->
+        <div class="profile-card">
+            <div class="profile-card-header">
+                <i class="fas fa-lock"></i> Change Password
+            </div>
+            <form method="POST" action="{{ url_for('profile') }}" novalidate>
+                <input type="hidden" name="action" value="change_password"/>
+                <div class="form-group-custom">
+                    <label>Current Password</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="current_password" id="curPw" class="input-custom" placeholder="Current password" required/>
+                        <button type="button" class="input-eye" onclick="togglePass('curPw','eye1')"><i class="fas fa-eye" id="eye1"></i></button>
+                    </div>
+                </div>
+                <div class="form-group-custom">
+                    <label>New Password</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-key"></i>
+                        <input type="password" name="new_password" id="newPw" class="input-custom" placeholder="Min. 6 characters" required/>
+                        <button type="button" class="input-eye" onclick="togglePass('newPw','eye2')"><i class="fas fa-eye" id="eye2"></i></button>
+                    </div>
+                </div>
+                <div class="form-group-custom">
+                    <label>Confirm New Password</label>
+                    <div class="input-icon-wrap">
+                        <i class="fas fa-key"></i>
+                        <input type="password" name="confirm_password" id="confPw" class="input-custom" placeholder="Repeat new password" required/>
+                        <button type="button" class="input-eye" onclick="togglePass('confPw','eye3')"><i class="fas fa-eye" id="eye3"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-txn-submit withdraw-btn">
+                    <i class="fas fa-shield-halved"></i> Update Password
+                </button>
+            </form>
+        </div>
+
+        <!-- ACCOUNT INFO -->
+        <div class="profile-card profile-info-card">
+            <div class="profile-card-header">
+                <i class="fas fa-id-card"></i> Account Information
+            </div>
+            <div class="account-info-list">
+                <div class="ai-row">
+                    <span class="ai-label"><i class="fas fa-hashtag"></i> Account Number</span>
+                    <span class="ai-value mono">{{ user.account_number }}</span>
+                </div>
+                <div class="ai-row">
+                    <span class="ai-label"><i class="fas fa-wallet"></i> Current Balance</span>
+                    <span class="ai-value" style="color:#43e97b">₹{{ "{:,.2f}".format(user.balance) }}</span>
+                </div>
+                <div class="ai-row">
+                    <span class="ai-label"><i class="fas fa-toggle-on"></i> Account Status</span>
+                    <span class="ai-value"><span class="status-pill status-{{ user.status }}">{{ user.status | capitalize }}</span></span>
+                </div>
+                <div class="ai-row">
+                    <span class="ai-label"><i class="fas fa-clock"></i> Last Login</span>
+                    <span class="ai-value">{{ user.last_login.strftime('%d %b %Y, %I:%M %p') if user.last_login else 'N/A' }}</span>
+                </div>
+                <div class="ai-row">
+                    <span class="ai-label"><i class="fas fa-calendar-plus"></i> Joined On</span>
+                    <span class="ai-value">{{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function togglePass(id, iconId) {
+    const inp = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+    if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+    else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
+}
+</script>
+{% endblock %}
