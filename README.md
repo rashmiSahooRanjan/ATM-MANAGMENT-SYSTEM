@@ -229,6 +229,12 @@ Register a new account at `/register` — an account number is auto-generated.
 
 ---
 
+## 👨‍💻 Authors
+
+| Name                          | Role      |
+| ----------------------------- | --------- |
+| **Rashmi Ranjan Sahoo** |  Developer |
+
 ## 📄 License
 
 MIT License — free to use and modify.
