@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ATM Management System – Secure Banking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body class="landing-body">
+
+<!-- NAV -->
+<nav class="landing-nav">
+    <div class="landing-nav-brand">
+        <i class="fas fa-university"></i>
+        <span>ATM<strong>Pro</strong></span>
+    </div>
+    <div class="landing-nav-links">
+        <a href="{{ url_for('login') }}" class="btn-nav-login">Login</a>
+        <a href="{{ url_for('register') }}" class="btn-nav-register">Open Account</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section">
+    <div class="hero-bg-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-shield-check"></i> Bank-Grade Security</div>
+        <h1 class="hero-title">
+            Your Money,<br/>
+            <span class="gradient-text">Always Secure.</span>
+        </h1>
+        <p class="hero-sub">Modern ATM Banking System — Deposit, Withdraw, Transfer and manage your finances with lightning speed and complete security.</p>
+        <div class="hero-cta">
+            <a href="{{ url_for('register') }}" class="btn-hero-primary">
+                <i class="fas fa-rocket"></i> Get Started Free
+            </a>
+            <a href="{{ url_for('login') }}" class="btn-hero-secondary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        </div>
+        <div class="hero-stats">
+            <div class="hstat"><span class="hstat-num">99.9%</span><span class="hstat-label">Uptime</span></div>
+            <div class="hstat-div"></div>
+            <div class="hstat"><span class="hstat-num">256-bit</span><span class="hstat-label">Encryption</span></div>
+            <div class="hstat-div"></div>
+            <div class="hstat"><span class="hstat-num">24/7</span><span class="hstat-label">Support</span></div>
+        </div>
+    </div>
+    <div class="hero-card-visual">
+        <div class="atm-card-mock">
+            <div class="card-chip"><i class="fas fa-microchip"></i></div>
+            <div class="card-logo"><i class="fas fa-university"></i> ATMPro</div>
+            <div class="card-number">ATM •••• •••• 0001</div>
+            <div class="card-footer">
+                <div><small>CARD HOLDER</small><div>John Doe</div></div>
+                <div><small>EXPIRES</small><div>12/28</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+    <div class="section-label">FEATURES</div>
+    <h2 class="section-title">Everything You Need</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-arrow-down-to-bracket"></i></div>
+            <h3>Instant Deposit</h3>
+            <p>Add funds to your account instantly with real-time balance updates.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="background: linear-gradient(135deg,#f093fb,#f5576c)"><i class="fas fa-arrow-up-from-bracket"></i></div>
+            <h3>Quick Withdrawal</h3>
+            <p>Withdraw cash securely with multi-layer validation and balance protection.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="background: linear-gradient(135deg,#43e97b,#38f9d7)"><i class="fas fa-right-left"></i></div>
+            <h3>Fund Transfer</h3>
+            <p>Transfer money to any ATMPro account in seconds with zero fees.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="background: linear-gradient(135deg,#fa709a,#fee140)"><i class="fas fa-clock-rotate-left"></i></div>
+            <h3>Transaction History</h3>
+            <p>Full audit trail with search, filter, and PDF export capabilities.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="background: linear-gradient(135deg,#a18cd1,#fbc2eb)"><i class="fas fa-shield-halved"></i></div>
+            <h3>Account Security</h3>
+            <p>Bcrypt hashing, session auth, CSRF protection and frozen account support.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" style="background: linear-gradient(135deg,#0fd850,#f9f047)"><i class="fas fa-chart-line"></i></div>
+            <h3>Analytics Dashboard</h3>
+            <p>Interactive charts showing your financial activity at a glance.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ADMIN CTA -->
+<section class="admin-cta-section">
+    <div class="admin-cta-box">
+        <i class="fas fa-user-shield fa-3x mb-3" style="color:#7c83fd"></i>
+        <h3>Admin Panel Access</h3>
+        <p>Manage users, monitor transactions and control all accounts from the powerful admin dashboard.</p>
+        <a href="{{ url_for('admin_login') }}" class="btn-admin-access">
+            <i class="fas fa-lock-open"></i> Admin Login
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="landing-footer">
+    <div class="footer-brand"><i class="fas fa-university"></i> ATMPro Banking System</div>
+    <div class="footer-copy">© 2024 ATM Management System. Built with Flask & MongoDB.</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

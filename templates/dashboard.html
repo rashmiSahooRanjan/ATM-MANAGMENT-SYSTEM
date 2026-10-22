@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – ATM System{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="dashboard-grid">
+    <!-- STATS ROW -->
+    <div class="stats-row">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Available Balance</div>
+                <div class="stat-value">₹{{ "{:,.2f}".format(user.balance) }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Account Number</div>
+                <div class="stat-value mono">{{ user.account_number }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-purple">
+            <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-value">{{ total_txns }}</div>
+            </div>
+        </div>
+        <div class="stat-card stat-orange">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-body">
+                <div class="stat-label">Last Login</div>
+                <div class="stat-value" style="font-size:1rem">
+                    {{ user.last_login.strftime('%d %b, %I:%M %p') if user.last_login else 'N/A' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="section-heading">Quick Actions</div>
+    <div class="quick-actions">
+        <a href="{{ url_for('deposit') }}" class="action-card action-deposit">
+            <div class="action-icon"><i class="fas fa-arrow-down-to-bracket"></i></div>
+            <div class="action-label">Deposit</div>
+        </a>
+        <a href="{{ url_for('withdraw') }}" class="action-card action-withdraw">
+            <div class="action-icon"><i class="fas fa-arrow-up-from-bracket"></i></div>
+            <div class="action-label">Withdraw</div>
+        </a>
+        <a href="{{ url_for('transfer') }}" class="action-card action-transfer">
+            <div class="action-icon"><i class="fas fa-right-left"></i></div>
+            <div class="action-label">Transfer</div>
+        </a>
+        <a href="{{ url_for('balance') }}" class="action-card action-balance">
+            <div class="action-icon"><i class="fas fa-wallet"></i></div>
+            <div class="action-label">Balance</div>
+        </a>
+        <a href="{{ url_for('history') }}" class="action-card action-history">
+            <div class="action-icon"><i class="fas fa-clock-rotate-left"></i></div>
+            <div class="action-label">History</div>
+        </a>
+        <a href="{{ url_for('profile') }}" class="action-card action-profile">
+            <div class="action-icon"><i class="fas fa-user-circle"></i></div>
+            <div class="action-label">Profile</div>
+        </a>
+    </div>
+
+    <!-- CHART + RECENT TRANSACTIONS -->
+    <div class="dashboard-bottom">
+        <div class="chart-card">
+            <div class="card-header-custom">
+                <span><i class="fas fa-chart-area"></i> 7-Day Activity</span>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="recent-card">
+            <div class="card-header-custom">
+                <span><i class="fas fa-clock-rotate-left"></i> Recent Transactions</span>
+                <a href="{{ url_for('history') }}" class="view-all">View All</a>
+            </div>
+            {% if recent_txns %}
+            <div class="txn-list">
+                {% for txn in recent_txns %}
+                <div class="txn-item">
+                    <div class="txn-icon txn-{{ txn.transaction_type | lower | replace(' ', '-') }}">
+                        {% if 'Deposit' in txn.transaction_type %}<i class="fas fa-arrow-down"></i>
+                        {% elif 'Withdraw' in txn.transaction_type %}<i class="fas fa-arrow-up"></i>
+                        {% else %}<i class="fas fa-right-left"></i>{% endif %}
+                    </div>
+                    <div class="txn-details">
+                        <div class="txn-type">{{ txn.transaction_type }}</div>
+                        <div class="txn-date">{{ txn.timestamp.strftime('%d %b, %I:%M %p') if txn.timestamp else '' }}</div>
+                    </div>
+                    <div class="txn-amount txn-amount-{{ 'credit' if 'Deposit' in txn.transaction_type or 'Received' in txn.transaction_type else 'debit' }}">
+                        {{ '+' if ('Deposit' in txn.transaction_type or 'Received' in txn.transaction_type) else '-' }}₹{{ "{:,.2f}".format(txn.amount) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox fa-2x mb-2"></i>
+                <p>No transactions yet</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const labels = {{ chart_labels | tojson }};
+const deposits = {{ chart_deposits | tojson }};
+const withdrawals = {{ chart_withdrawals | tojson }};
+
+const ctx = document.getElementById('activityChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Deposits',
+                data: deposits,
+                borderColor: '#43e97b',
+                backgroundColor: 'rgba(67,233,123,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#43e97b',
+                pointRadius: 4
+            },
+            {
+                label: 'Withdrawals',
+                data: withdrawals,
+                borderColor: '#f5576c',
+                backgroundColor: 'rgba(245,87,108,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#f5576c',
+                pointRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#c5cae9', font: { family: 'Outfit' } } } },
+        scales: {
+            x: { ticks: { color: '#8892b0' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#8892b0', callback: v => '₹'+v }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+    }
+});
+</script>
+{% endblock %}

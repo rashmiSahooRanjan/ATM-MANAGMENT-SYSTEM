@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}ATM Management System{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if session.get('user_id') or session.get('admin') %}
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fas fa-university"></i></div>
+        <div class="brand-text">
+            <span class="brand-name">ATM</span>
+            <span class="brand-sub">Banking System</span>
+        </div>
+    </div>
+
+    {% if session.get('user_id') %}
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ session.get('full_name', 'U')[0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ session.get('full_name', 'User') }}</div>
+            <div class="user-acc">{{ session.get('account_number', '') }}</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint=='dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i><span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('deposit') }}" class="nav-item {% if request.endpoint=='deposit' %}active{% endif %}">
+            <i class="fas fa-arrow-down-to-bracket"></i><span>Deposit</span>
+        </a>
+        <a href="{{ url_for('withdraw') }}" class="nav-item {% if request.endpoint=='withdraw' %}active{% endif %}">
+            <i class="fas fa-arrow-up-from-bracket"></i><span>Withdraw</span>
+        </a>
+        <a href="{{ url_for('transfer') }}" class="nav-item {% if request.endpoint=='transfer' %}active{% endif %}">
+            <i class="fas fa-right-left"></i><span>Transfer</span>
+        </a>
+        <a href="{{ url_for('balance') }}" class="nav-item {% if request.endpoint=='balance' %}active{% endif %}">
+            <i class="fas fa-wallet"></i><span>Balance</span>
+        </a>
+        <a href="{{ url_for('history') }}" class="nav-item {% if request.endpoint=='history' %}active{% endif %}">
+            <i class="fas fa-clock-rotate-left"></i><span>History</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-item {% if request.endpoint=='profile' %}active{% endif %}">
+            <i class="fas fa-user-circle"></i><span>Profile</span>
+        </a>
+        <div class="nav-divider"></div>
+        <a href="{{ url_for('logout') }}" class="nav-item nav-logout">
+            <i class="fas fa-right-from-bracket"></i><span>Logout</span>
+        </a>
+    </nav>
+    {% elif session.get('admin') %}
+    <div class="sidebar-user">
+        <div class="user-avatar admin-av"><i class="fas fa-shield-halved"></i></div>
+        <div class="user-info">
+            <div class="user-name">Administrator</div>
+            <div class="user-acc">System Admin</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-item {% if request.endpoint=='admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i><span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="nav-item {% if request.endpoint=='admin_users' %}active{% endif %}">
+            <i class="fas fa-users"></i><span>Manage Users</span>
+        </a>
+        <div class="nav-divider"></div>
+        <a href="{{ url_for('admin_logout') }}" class="nav-item nav-logout">
+            <i class="fas fa-right-from-bracket"></i><span>Logout</span>
+        </a>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main-wrapper" id="mainWrapper">
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+        <div class="topbar-right">
+            <div class="topbar-time" id="topbarTime"></div>
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('profile') }}" class="topbar-avatar">{{ session.get('full_name','U')[0].upper() }}</a>
+            {% else %}
+            <span class="topbar-avatar"><i class="fas fa-shield-halved"></i></span>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="main-content">
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                <div class="alert-custom alert-{{ category }} alert-dismissible">
+                    <i class="fas {% if category=='success' %}fa-circle-check{% elif category=='danger' %}fa-circle-exclamation{% elif category=='warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <button class="alert-close" onclick="this.parentElement.remove()"><i class="fas fa-xmark"></i></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+{% else %}
+<!-- PUBLIC LAYOUT -->
+<div class="public-layout">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container flash-public">
+            {% for category, message in messages %}
+            <div class="alert-custom alert-{{ category }} alert-dismissible">
+                <i class="fas {% if category=='success' %}fa-circle-check{% elif category=='danger' %}fa-circle-exclamation{% elif category=='warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                <span>{{ message }}</span>
+                <button class="alert-close" onclick="this.parentElement.remove()"><i class="fas fa-xmark"></i></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+</div>
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>
