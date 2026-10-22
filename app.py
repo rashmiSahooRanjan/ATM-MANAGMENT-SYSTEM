@@ -556,6 +556,7 @@ def admin_redirect():
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
+    ensure_admin()
     if 'admin' in session:
         return redirect(url_for('admin_dashboard'))
     if request.method == 'POST':
